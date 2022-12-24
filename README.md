@@ -18,6 +18,7 @@ about - About me.
 ```
 $ git clone https://github.com/BotCreator99/ShareusBypasserBot
 $ cd ShareusBypasserBot
+$ pip3 install -r requirements.txt
 $ python3 main.py
 ```
 # 👏 Credits.
