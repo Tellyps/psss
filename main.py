@@ -129,6 +129,5 @@ def docfile(client: pyrogram.client.Client,
 
 # server loop
 print("👍😍😍 Bot Started")
-print("👍 go to telegram and start bot")
+print("😎 follow on GitHub BotCreator99")
 app.run()
-
