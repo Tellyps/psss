@@ -1,172 +1,134 @@
-import re
-from re import match as rematch, findall, sub as resub
-import requests
-from requests import get as rget
-import base64
-from urllib.parse import unquote, urlparse, parse_qs
-import time
-import cloudscraper
-from bs4 import BeautifulSoup, NavigableString, Tag
-from lxml import etree
-import hashlib
-import json
-from dotenv import load_dotenv
-
-load_dotenv()
-from asyncio import sleep as asleep
-import PyBypass
+import pyrogram
+from pyrogram import Client
+from pyrogram import filters
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+import bypasser
 import os
-
-##########################################################
-# ENVs
-
-GDTot_Crypt = os.environ.get(
-  "CRYPT", "b0lDek5LSCt6ZjVRR2EwZnY4T1EvVndqeDRtbCtTWmMwcGNuKy8wYWpDaz0%3D")
-Laravel_Session = os.environ.get("Laravel_Session", "")
-XSRF_TOKEN = os.environ.get("XSRF_TOKEN", "")
-DCRYPT = os.environ.get("DRIVEFIRE_CRYPT", "")
-KCRYPT = os.environ.get(
-  "KOLOP_CRYPT",
-  "aWFicnVaNWh4TThRbzFqdkE2U2FKNmJOTWhvWkZmbWswaUFadTB5NXJ3RT0%3D")
-HCRYPT = os.environ.get(
-  "HUBDRIVE_CRYPT",
-  "Q29hdlpLUEZTSEJLUjVZRkZQSExLODFuWGVudUlNK0ZPZlZmS1hENWxZVT0%3D")
-KATCRYPT = os.environ.get("KATDRIVE_CRYPT", "")
-
-############################################################
-# Lists
-
-ddllist = ["shareus.io"]
+from bypasser import ddllist
+import requests
+import threading
+from texts import HELP_TEXT, ABOUT_TEXT
+# Follow on GitHub @BotCreator99
+# Update key and token 
+bot_token = os.environ.get("TOKEN", "5731935556:AAE6gkDi86bCF9fn7kn-wRaEe8RnZ6u_R0w")
+api_hash = os.environ.get("HASH", "1168e573def0c74a7e6e68dae9313c68")
+api_id = os.environ.get("ID", "11983148")
+app = Client("my_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 
 
-  
-###################################################
-# script links
+# loop thread
+def loopthread(message):
+  urls = []
+  for ele in message.text.split():
+    if "http://" in ele or "https://" in ele:
+      urls.append(ele)
+  if len(urls) == 0:
+    return
 
-
-def getfinal(domain, url, sess):
-
-  #sess = requests.session()
-  res = sess.get(url)
-  soup = BeautifulSoup(res.text, "html.parser")
-  soup = soup.find("form").findAll("input")
-  datalist = []
-  for ele in soup:
-    datalist.append(ele.get("value"))
-
-  data = {
-    '_method': datalist[0],
-    '_csrfToken': datalist[1],
-    'ad_form_data': datalist[2],
-    '_Token[fields]': datalist[3],
-    '_Token[unlocked]': datalist[4],
-  }
-
-  sess.headers = {
-    'User-Agent':
-    'Mozilla/5.0 (X11; Linux x86_64; rv:103.0) Gecko/20100101 Firefox/103.0',
-    'Accept': 'application/json, text/javascript, */*; q=0.01',
-    'Accept-Language': 'en-US,en;q=0.5',
-    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-    'X-Requested-With': 'XMLHttpRequest',
-    'Origin': domain,
-    'Connection': 'keep-alive',
-    'Referer': url,
-    'Sec-Fetch-Dest': 'empty',
-    'Sec-Fetch-Mode': 'cors',
-    'Sec-Fetch-Site': 'same-origin',
-  }
-
-  # print("waiting 10 secs")
-  time.sleep(10)  # important
-  response = sess.post(domain + '/links/go', data=data).json()
-  furl = response["url"]
-  return furl
-
-
-def getfirst(url):
-
-  sess = requests.session()
-  res = sess.get(url)
-
-  soup = BeautifulSoup(res.text, "html.parser")
-  soup = soup.find("form")
-  action = soup.get("action")
-  soup = soup.findAll("input")
-  datalist = []
-  for ele in soup:
-    datalist.append(ele.get("value"))
-  sess.headers = {
-    'User-Agent':
-    'Mozilla/5.0 (X11; Linux x86_64; rv:103.0) Gecko/20100101 Firefox/103.0',
-    'Accept':
-    'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-    'Accept-Language': 'en-US,en;q=0.5',
-    'Origin': action,
-    'Connection': 'keep-alive',
-    'Referer': action,
-    'Upgrade-Insecure-Requests': '1',
-    'Sec-Fetch-Dest': 'document',
-    'Sec-Fetch-Mode': 'navigate',
-    'Sec-Fetch-Site': 'same-origin',
-    'Sec-Fetch-User': '?1',
-  }
-
-  data = {'newwpsafelink': datalist[1], "g-recaptcha-response": RecaptchaV3()}
-  response = sess.post(action, data=data)
-  soup = BeautifulSoup(response.text, "html.parser")
-  soup = soup.findAll("div", class_="wpsafe-bottom text-center")
-  for ele in soup:
-    rurl = ele.find("a").get("onclick")[13:-12]
-
-  res = sess.get(rurl)
-  furl = res.url
-  # print(furl)
-  return getfinal(f'https://{furl.split("/")[-2]}/', furl, sess)
-
-
-
-
-######################################################
-# shareus
-
-
-def shareus(url):
-  token = url.split("=")[-1]
-  bypassed_url = "https://us-central1-my-apps-server.cloudfunctions.net/r?shortid=" + token
-  response = requests.get(bypassed_url).text
-  return response
-
-
-# helpers
-
-
-# check if present in list
-def ispresent(inlist, url):
-  for ele in inlist:
-    if ele in url:
-      return True
-  return False
-
-
-# shortners
-def shortners(url):
-
-  # igg games
-  if "https://igg-games.com/" in url:
-    print("entered igg:", url)
-    return igggames(url)
-
-  # shareus
-  elif "https://shareus.io/" in url:
-    print("entered shareus:", url)
-    return shareus(url)
-
-  # else
+  if bypasser.ispresent(ddllist, urls[0]):
+    msg = app.send_message(message.chat.id,
+                           "⚡ __generating...__",
+                           reply_to_message_id=message.id)
   else:
-    temp = PyBypass.bypass(url)
-    if temp != None: return temp
-    else: return "😒 Not in Supported Links"
+    if urls[0] in "https://olamovies" or urls[0] in "https://psa.pm/":
+      msg = app.send_message(message.chat.id,
+                             "🔎 __this might take some time...__",
+                             reply_to_message_id=message.id)
+    else:
+      msg = app.send_message(message.chat.id,
+                             "😍 __bypassing...__",
+                             reply_to_message_id=message.id)
+
+  link = ""
+  for ele in urls:
+    if bypasser.ispresent(ddllist, ele):
+      try:
+        temp = ddl.direct_link_generator(ele)
+      except Exception as e:
+        temp = "**Error**: " + str(e)
+    else:
+      try:
+        temp = bypasser.shortners(ele)
+      except Exception as e:
+        temp = "**Error**: " + str(e)
+    print("bypassed:", temp)
+    link = link + temp + "\n\n"
+
+  try:
+    app.edit_message_text(message.chat.id,
+                          msg.id,
+                          f'__{link}__',
+                          disable_web_page_preview=True)
+  except:
+    app.edit_message_text(message.chat.id, msg.id, "__Failed to Bypass__")
 
 
-################################################################################################################################
+# start command
+@app.on_message(filters.command(["start"]))
+def send_start(client: pyrogram.client.Client,
+               message: pyrogram.types.messages_and_media.message.Message):
+  app.send_message(
+    message.chat.id,
+    f"__👋 Hi **{message.from_user.mention}**, I am shareus bypasser bot, just send me any shareus links and i will you get you results.\n👉 More command use :- /help /about\n This bot power by @TnlinkBypasserBot",
+    reply_markup=InlineKeyboardMarkup([[
+      InlineKeyboardButton(
+        "❤ Update Chanel", url="https://t.me/BotMinister")
+    ]]),
+    reply_to_message_id=message.id)
+
+
+# help command
+@app.on_message(filters.command(["help"]))
+def send_help(client: pyrogram.client.Client,
+              message: pyrogram.types.messages_and_media.message.Message):
+  app.send_message(message.chat.id,
+                   HELP_TEXT,
+                   reply_to_message_id=message.id,
+                   disable_web_page_preview=True)
+
+# hi command
+@app.on_message(filters.command(["about"]))
+def send_help(client: pyrogram.client.Client,
+              message: pyrogram.types.messages_and_media.message.Message):
+  app.send_message(message.chat.id,
+                   ABOUT_TEXT,
+                   reply_to_message_id=message.id,
+                   disable_web_page_preview=True)
+                
+# links
+@app.on_message(filters.text)
+def receive(client: pyrogram.client.Client,
+            message: pyrogram.types.messages_and_media.message.Message):
+  bypass = threading.Thread(target=lambda: loopthread(message), daemon=True)
+  bypass.start()
+
+
+# doc thread
+def docthread(message):
+  if message.document.file_name.endswith("dlc"):
+    msg = app.send_message(message.chat.id,
+                           "😍 __bypassing...__",
+                           reply_to_message_id=message.id)
+    print("sent DLC file")
+    sess = requests.session()
+    file = app.download_media(message)
+    dlccont = open(file, "r").read()
+    link = bypasser.getlinks(dlccont, sess)
+    app.edit_message_text(message.chat.id, msg.id, f'__{link}__')
+    os.remove(file)
+
+
+# doc
+@app.on_message(filters.document)
+def docfile(client: pyrogram.client.Client,
+            message: pyrogram.types.messages_and_media.message.Message):
+  bypass = threading.Thread(target=lambda: docthread(message), daemon=True)
+  bypass.start()
+
+
+# server loop
+print("👍😍😍 Bot Started")
+print("👍 go to telegram and start bot")
+print("😎 Follow on GitHub @BotCreator99")
+app.run()
+
