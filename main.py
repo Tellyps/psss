@@ -8,13 +8,9 @@ from bypasser import ddllist
 import requests
 import threading
 from texts import HELP_TEXT, ABOUT_TEXT
-from weblive import weblive
-#live
-weblive()
 
-# bot
-bot_token = os.environ.get("TOKEN",
-                           "5673219866:AAFsIlFd0cQZLsGbr9JCndw0b7WryQR0UJ8")
+# Update key and token 
+bot_token = os.environ.get("TOKEN","5731935556:AAE6gkDi86bCF9fn7kn-wRaEe8RnZ6u_R0w")
 api_hash = os.environ.get("HASH", "1168e573def0c74a7e6e68dae9313c68")
 api_id = os.environ.get("ID", "11983148")
 app = Client("my_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
