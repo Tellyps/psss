@@ -1,3 +1,4 @@
+<a href="https://t.me/ShareusBypasserBot"><img alt="ShareusBypasserBot" src="https://img.shields.io/badge/ShareusBypasserBot-0061fc.svg?&logo=telegram&logoColor=white"></a>
 # ShareusBypasserBot.
 😎 Shareus bypasser bot, just send me any shareus links and i will you get you results.
 
