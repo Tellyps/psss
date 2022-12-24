@@ -13,7 +13,7 @@ start - Check if I'm alive or not.
 help -  Help to us.
 about - About me.   
 ```
-# Bot To Vps.
+# Deploy To Vps.
 ```
 $ git clone https://github.com/BotCreator99/ShareusBypasserBot
 $ cd ShareusBypasserBot
