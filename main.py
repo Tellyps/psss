@@ -70,10 +70,10 @@ def send_start(client: pyrogram.client.Client,
                message: pyrogram.types.messages_and_media.message.Message):
   app.send_message(
     message.chat.id,
-    f"__👋 Hi **{message.from_user.mention}**, I am shareus bypasser bot, just send me any shareus links and i will you get you results.\n👉 More command use :- /help /about\n This bot power by @TnlinkBypasserBot",
+    f"__👋 Hi **{message.from_user.mention}**, I am shareus bypasser bot, just send me any shareus links and i will you get you results.\n👉 More command use :- /help /about\n This bot power by @GreyMatter_Bots",
     reply_markup=InlineKeyboardMarkup([[
       InlineKeyboardButton(
-        "❤ Update Chanel", url="https://t.me/BotMinister")
+        "❤ Developer", url="https://github.com/BotCreator99")
     ]]),
     reply_to_message_id=message.id)
 
